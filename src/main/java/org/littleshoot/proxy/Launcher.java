@@ -23,49 +23,41 @@ import java.util.Arrays;
  * Launches a new HTTP proxy.
  */
 public class Launcher {
-
     private static final Logger LOG = LoggerFactory.getLogger(Launcher.class);
 
+    /**
+     * Options are passed with prefix of `--`
+     */
     private static final String OPTION_DNSSEC = "dnssec";
-
     private static final String OPTION_PORT = "port";
-
     private static final String OPTION_HELP = "help";
-
     private static final String OPTION_MITM = "mitm";
-
     private static final String OPTION_NIC = "nic";
 
     /**
      * Starts the proxy from the command line.
-     * 
-     * @param args
-     *            Any command line arguments.
+     *
+     * @param args Any command line arguments.
      */
     public static void main(final String... args) {
         pollLog4JConfigurationFileIfAvailable();
         LOG.info("Running LittleProxy with args: {}", Arrays.asList(args));
         final Options options = new Options();
-        options.addOption(null, OPTION_DNSSEC, true,
-                "Request and verify DNSSEC signatures.");
+        options.addOption(null, OPTION_DNSSEC, true, "Request and verify DNSSEC signatures.");
         options.addOption(null, OPTION_PORT, true, "Run on the specified port.");
         options.addOption(null, OPTION_NIC, true, "Run on a specified Nic");
-        options.addOption(null, OPTION_HELP, false,
-                "Display command line help.");
+        options.addOption(null, OPTION_HELP, false, "Display command line help.");
         options.addOption(null, OPTION_MITM, false, "Run as man in the middle.");
-        
+
         final CommandLineParser parser = new PosixParser();
         final CommandLine cmd;
         try {
             cmd = parser.parse(options, args);
             if (cmd.getArgs().length > 0) {
-                throw new UnrecognizedOptionException(
-                        "Extra arguments were provided in "
-                                + Arrays.asList(args));
+                throw new UnrecognizedOptionException("Extra arguments were provided in " + Arrays.asList(args));
             }
         } catch (final ParseException e) {
-            printHelp(options,
-                    "Could not parse command line: " + Arrays.asList(args));
+            printHelp(options, "Could not parse command line: " + Arrays.asList(args));
             return;
         }
         if (cmd.hasOption(OPTION_HELP)) {
@@ -102,7 +94,7 @@ public class Launcher {
             LOG.info("Running as Man in the Middle");
             bootstrap.withManInTheMiddle(new SelfSignedMitmManager());
         }
-        
+
         if (cmd.hasOption(OPTION_DNSSEC)) {
             final String val = cmd.getOptionValue(OPTION_DNSSEC);
             if (ProxyUtils.isTrue(val)) {
@@ -118,12 +110,12 @@ public class Launcher {
             }
         }
 
-        System.out.println("About to start...");
+        LOG.info("About to start...");
         bootstrap.start();
     }
 
     private static void printHelp(final Options options,
-            final String errorMessage) {
+                                  final String errorMessage) {
         if (!StringUtils.isBlank(errorMessage)) {
             LOG.error(errorMessage);
             System.err.println(errorMessage);

@@ -181,7 +181,7 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
 
     @Override
     protected ConnectionState readHTTPInitial(HttpRequest httpRequest) {
-        LOG.debug("Got request: {}", httpRequest);
+        LOG.info("Got request: {}", httpRequest.getUri());
 
         boolean authenticationRequired = authenticationRequired(httpRequest);
 
